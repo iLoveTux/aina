@@ -59,9 +59,6 @@ class TestFlumeRender(unittest.TestCase):
         self.assertEqual(render(input, self.namespace), expected)
 
     def test_multiline_substitution(self):
-        input = """{{ str({
-            "foo": "bar",
-            "bar": "baz",
-        }) }}"""
-        expected = "{'foo': 'bar', 'bar': 'baz'}"
+        input = """{{ str(["foo", "bar", "baz"]) }}"""
+        expected = "['foo', 'bar', 'baz']"
         self.assertEqual(render(input, self.namespace), expected)
