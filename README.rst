@@ -3,9 +3,6 @@ flume
 =====
 
 
-.. image:: https://img.shields.io/pypi/v/flume.svg
-        :target: https://pypi.python.org/pypi/flume
-
 .. image:: https://img.shields.io/travis/ilovetux/flume.svg
         :target: https://travis-ci.org/ilovetux/flume
 
@@ -40,9 +37,18 @@ Features
 Installing
 ----------
 
-Simply, issue the following command::
+Currently the only way to install this package is to clone it which
+should look like the following::
 
-  $ pip install flume
+  $ git clone https://github.com/ilovetux/flume
+  $ cd flume
+
+Then you can run the tests::
+  $ python setup.py test
+
+And if they pass (fingers crossed!), go ahead with::
+
+  $ pip install .
 
 Concepts
 --------
