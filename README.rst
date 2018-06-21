@@ -3,7 +3,7 @@ flume
 =====
 
 
-.. image:: https://img.shields.io/travis/ilovetux/flume.svg
+.. image:: https://img.shields.io/travis/iLoveTux/flume.svg
         :target: https://travis-ci.org/ilovetux/flume
 
 .. image:: https://readthedocs.org/projects/flume/badge/?version=latest
