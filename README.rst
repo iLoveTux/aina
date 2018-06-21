@@ -19,6 +19,11 @@ Flume is a general-purpose stream processing framework. It includes
 a simple but powerful templating system and all the utilities
 to shape your data streams.
 
+NOTE: This is new code. Master is in flux and docs are lacking,
+but it is in a point where it could be useful to someone. If
+it is useful to you, help us get to 1.0.0. You can start by reading
+the contributing guide at https://github.com/ilovetux/flume/CONTRIBUTING.rst.
+
 * Free software: GNU General Public License v3
 * Documentation: https://flume.readthedocs.io.
 
@@ -29,7 +34,7 @@ Features
 * Simple, Powerful templating system
 * Extensible input and output system
 * Command line utilities
-* Web GUI
+* TODO: Web GUI
 * TODO: Many default use cases covered
 * TODO: --no-overwrite option
 * TODO: Improve test coverage
