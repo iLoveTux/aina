@@ -34,7 +34,7 @@ def _exec_list(exprs, namespace):
         if os.path.isfile(_expr):
             namespace.update(runpy.run_path(_expr, init_globals=namespace))
         else:
-            exec(render(_expr, namespace), namespace)
+            exec(_expr, namespace)
 
 def make_namespace(namespaces, add_env):
     namespace = {}
@@ -151,8 +151,6 @@ def stream(
             format=logging_format,
         )
 
-    if templates is None:
-        templates = ["{{line}}"]
     if add_paths is None:
         add_paths = []
     for path in add_paths:
@@ -220,16 +218,15 @@ def stream(
                                 continue
                             if results:
                                 logging.getLogger(
-                                    "{}.{}.{}.{}".format(
+                                    "{}.{}.{}".format(
                                         __name__,
                                         filename,
                                         templates.index(template),
-                                        fnr,
                                     )
                                 ).info(
                                     results
                                 )
-                        _exec_list(end_lines, namespace)
+                    _exec_list(end_lines, namespace)
             _exec_list(end_files, namespace)
         except:
             if not suppress_tracebacks:
