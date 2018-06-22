@@ -11,8 +11,6 @@ flume
         :alt: Documentation Status
 
 
-
-
 Let the logs flow
 
 Flume is a general-purpose stream processing framework. It includes
@@ -83,96 +81,60 @@ The command line utility, flume, can be run in two modes:
   1. Streaming mode: Data is streamed through and used to populate templates
   2. Document mode: Render files src and write the results to dst
 
-
 Streaming mode
 --------------
 
-In streaming mode, your templates and hooks are `eval`uated or `exec`uted
-within an single, shared namespace. This namespace is injected with the
-following variables at various times throughout processing:
+Streaming mode runs in the following manner:
 
-  * `filename`: The filename currently being processed
-  * `line`: The text of the current line
-  * `fields`: The result of calling `line.split(field_sep)`
-  * `nr`: The number of the current record being processed
-  * `fnr`: The number of the current record within the current file
-  * `nf`: The result of `len(line.split(field_sep))`
+  1. reads data from `filenames`, which defaults to stdin
+  2. At this point any expressions passed to `--begins` are executed
+  3. The files specified are processed as follows in order
+    1. Any expressions passed to `--begin-files` are executed
+    2. The data from the current file is read line-by-line
+      1. Any statements passed to `--tests` are evaluated
+      2. Iff all tests pass, the following process is performed.
+        1. Any expressions passed to `--begin-lines` are executed
+        2. Any templates are rendered through the python logging system
+      3. Any expressions passed to `--end-lines` are executed
+    3. Any expressions passed to `--end-files` are executed
+  4. Any expressions passed to `--ends` are executed
 
+Below are a few examples. See the documentation for more details::
 
-to run in streaming mode, use the stream subcommand. Here is an example
-of a command which is similar to grep::
-
-  $ flume stream --test "'error' in line.lower()" --template {{line}} *.log
-
-Here is a command which outputs the number of lines in each file::
-
+  $ # Like grep
+  $ flume stream --test "'error' in line.lower()" --template "{{line}}" *.log
+  $ # Like wc -l
   $ flume stream --end-files "print(fnr, filename)" *.log
-
-Here is an updated example which also prints out the word count::
-
+  $ # Like wc -wl
   $ flume stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
-
-Everything that looks advanced is literally just Python, so it's easy
-to pick up and batteries are included. Imports work just fine and there is
-no magic. Here is an example which uses the `re` module find the count of
-numbers::
-
+  $ # Find the count of numbers "\d+" for each line
   $ flume stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
 
-A list of the hooks you can tie into are, If more than any are provided, they
-are processed in the order given. If a filename is given and is said to exist by
-`os.path.exists`, then that file is read in and executed by ``runpy.run_path``:
+Please see the documentation for more as well as trying::
 
-If Python source code is provided, then that is `exec`uted.
-
-  * --begins: Executed once at startup.
-  * --begin-files: Executed once for each file processed.
-  * --begin-lines: Executed once for each line processed. These hooks are only
-                   executed if all tests specified by `--tests` evaluate to
-                   Truthy values.
-  * --end-lines: Executed once after any processing of line is complete.
-                 end-lines are rendered regardless of the results of `--tests`.
-  * --end-files:  Executed once after processing is complete for each file.
-  * --ends: Executed once after all lines are complete. This means that
-            either all files are exhausted or `Ctrl + C` has been pressed.
-
-Other parameters:
-
-  * --tests: Each of these are `eval`uated when a new line is received.
-             if and only if all tests provided evaluate to Truthy values
-             processing of the line will continue otherwise processing is
-             continued with the next line.
-  * --templates: Templates are treated differently. Templates are rendered
-                 once per line according to the rules defined above in
-                 "Concepts". The result of each rendering is put out to a
-                 logger unique to that template. This allows the Python
-                 `logging.config` package to provide a very fine grain of
-                 control. The main use case for this is to extract information
-                 according to a variety of KPI and output to multiple
-                 destinations, while also maintaining a record of authority.
+  $ flume stream --help
 
 Document mode
-=============
+-------------
 
-In document mode, your templates reside in files and are read from `src`
-and written to `dst`.The behavior differs depending on the values provided
-for `src` and `dst`.
+Document mode runs tries to render a group of files from one location
+to another. It is used like this::
 
-If `src` is a directory or multiple values are provided for `src`
-then `dst` must be a directory in which case all files in `src` will
-be rendered into `dst`. If `--recursive` is specified then files will
-be rendered recursively from subdirectories within `src`.
+  $ flume doc <src> <dst>
 
-If `src` is a file then `dst` can be either a directory or a filename. If a
-filename is provided then `src` will be rendered into that file, otherwise
-if a directory is provided for `dst` then a file with the same name as `src`
-will be created.
+There are options to control behavior, but the gist of it is:
 
-If `--interval` is specified, then after all files are rendered the process
-will sleep for the specified interval. When the process awakens again all files
-in `src` will be examined and if any have changed then that file is re-rendered
-into `dst`. Said process will continue indefinately until the process is killed,
-ie by pressing `Ctrl + C`.
+  * if src is a file
+    * if dst is a filename, src is rendered and written to dst
+    * if dst is a directory, src is rendered and written to a file in dst with the same basename as src
+  * if src is a directory
+    * dst must be a directory and every file in src is rendered into a file in dst with the same basename as the file from src
+    * If `--recursive` is specified, the subdirectories will be reproduced in dst
+
+Some important notes:
+
+* File and directory names can be templated
+* If `--interval` is passed an integer value, the program will sleep for that many seconds and check for changes to your templates in which case they will be re-rendered
 
 Use Cases
 ---------
@@ -184,6 +146,8 @@ the results in real-time.
 
 Document mode is also useful for near-real-time rendering of static
 web resources such as charts, tables, dashboards and more.
+
+
 
 Credits
 -------

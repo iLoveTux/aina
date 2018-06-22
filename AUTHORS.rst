@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* iLoveTux <cliffbressette@gmail.com>
+* iLoveTux <cliffbressette@gmail.com> (Original Author)
 
 Contributors
 ------------

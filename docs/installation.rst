@@ -8,6 +8,9 @@ Installation
 Stable release
 --------------
 
+NOTE: This will not work! This project is pending a rename because "flume"
+is not available on PyPI. Looking for suggestions at https://github.com/iLoveTux/flume/issues/4
+
 To install flume, run this command in your terminal:
 
 .. code-block:: console
