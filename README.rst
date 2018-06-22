@@ -114,6 +114,12 @@ Please see the documentation for more as well as trying::
 
   $ flume stream --help
 
+Important Note:
+
+If anything passed to any of the hooks is determined to exist by `os.path.exists`
+then it will be read and executed as if that text was passed in on the CLI. This
+is useful for quickly solving character escaping issues.
+
 Document mode
 -------------
 
@@ -124,12 +130,12 @@ to another. It is used like this::
 
 There are options to control behavior, but the gist of it is:
 
-  * if src is a file
-    * if dst is a filename, src is rendered and written to dst
-    * if dst is a directory, src is rendered and written to a file in dst with the same basename as src
-  * if src is a directory
-    * dst must be a directory and every file in src is rendered into a file in dst with the same basename as the file from src
-    * If `--recursive` is specified, the subdirectories will be reproduced in dst
+  1. if src is a file
+    1. if dst is a filename, src is rendered and written to dst
+    2. if dst is a directory, src is rendered and written to a file in dst with the same basename as src
+  2. if src is a directory
+    1. dst must be a directory and every file in src is rendered into a file in dst with the same basename as the file from src
+    2. If `--recursive` is specified, the subdirectories will be reproduced in dst
 
 Some important notes:
 
@@ -138,6 +144,9 @@ Some important notes:
 
 Use Cases
 ---------
+
+Streaming mode is great for processing incoming log files with `tail --follow=name`
+or for ad-hoc analysis of text files.
 
 Document mode is incredibly useful for a powerful configuration templating
 system. The `--interval` option is incredibly useful as it will only re-render
