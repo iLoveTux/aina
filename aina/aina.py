@@ -78,9 +78,21 @@ def render_file(src, dst, namespace):
 @click.option("--recursive", "-R", is_flag=True, default=False)
 @click.option("--namespaces", "-N", default=None, type=str, multiple=True)
 @click.option("--add-env", "-E", default=False, is_flag=True)
+@click.option("--logging-config", "-L")
+@click.option("--logging-level", default=20)
+@click.option("--logging-format", default="%(message)s")
 def doc(src, dst, interval, recursive, namespaces, add_env):
     """Render a set of template documents `src` to detination `dst`
     with a persistent namespace"""
+    if logging_config:
+        with open(logging_config, "r") as fp:
+            logging.config.dictConfig(eval(fp.read()))
+    else:
+        logging.basicConfig(
+            stream=sys.stdout,
+            level=logging_level,
+            format=logging_format,
+        )
     namespace = make_namespace(namespaces, add_env)
     src = render(src, namespace)
     dst = render(dst, namespace)
