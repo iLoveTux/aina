@@ -87,7 +87,7 @@ If this were rendered, the output would be as follows::
 
   Hello Bill,
 
-  I heard that you just turned {{str(age)}}. Congratulations!
+  I heard that you just turned 35. Congratulations!
 
   Sincerely:
 
