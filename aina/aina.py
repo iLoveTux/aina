@@ -81,7 +81,7 @@ def render_file(src, dst, namespace):
 @click.option("--logging-config", "-L")
 @click.option("--logging-level", default=20)
 @click.option("--logging-format", default="%(message)s")
-def doc(src, dst, interval, recursive, namespaces, add_env):
+def doc(src, dst, interval, recursive, namespaces, add_env, logging_config, logging_level, logging_format,):
     """Render a set of template documents `src` to detination `dst`
     with a persistent namespace"""
     if logging_config:
