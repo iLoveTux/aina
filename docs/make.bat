@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=flume
+set SPHINXPROJ=aina
 
 if "%1" == "" goto help
 

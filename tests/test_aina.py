@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `flume` package."""
+"""Tests for `aina` package."""
 import unittest
 import logging
-from flume.flume import cli
+from aina.aina import cli
 from click.testing import CliRunner
 
 
-class TestFlumeStream(unittest.TestCase):
-    """Tests for `flume stream` subcommand."""
+class TestainaStream(unittest.TestCase):
+    """Tests for `aina stream` subcommand."""
 
     def setUp(self):
         """Set up test fixtures, if any."""

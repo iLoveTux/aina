@@ -1,29 +1,29 @@
 =====
-flume
+aina
 =====
 
 
-.. image:: https://img.shields.io/travis/iLoveTux/flume.svg
-        :target: https://travis-ci.org/ilovetux/flume
+.. image:: https://img.shields.io/travis/iLoveTux/aina.svg
+        :target: https://travis-ci.org/ilovetux/aina
 
-.. image:: https://readthedocs.org/projects/flume/badge/?version=latest
-        :target: https://flume.readthedocs.io/en/latest/?badge=latest
+.. image:: https://readthedocs.org/projects/aina/badge/?version=latest
+        :target: https://aina.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
 
 Let the logs flow
 
-Flume is a general-purpose stream processing framework. It includes
+aina is a general-purpose stream processing framework. It includes
 a simple but powerful templating system and all the utilities
 to shape your data streams.
 
 NOTE: This is new code. Master is in flux and docs are lacking,
 but it is in a point where it could be useful to someone. If
 it is useful to you, help us get to 1.0.0. You can start by reading
-the contributing guide at https://github.com/ilovetux/flume/CONTRIBUTING.rst.
+the contributing guide at https://github.com/ilovetux/aina/CONTRIBUTING.rst.
 
 * Free software: GNU General Public License v3
-* Documentation: https://flume.readthedocs.io.
+* Documentation: https://aina.readthedocs.io.
 
 
 Features
@@ -43,8 +43,8 @@ Installing
 Currently the only way to install this package is to clone it which
 should look like the following::
 
-  $ git clone https://github.com/ilovetux/flume
-  $ cd flume
+  $ git clone https://github.com/ilovetux/aina
+  $ cd aina
 
 Then you can run the tests::
   $ python setup.py test
@@ -76,7 +76,7 @@ command line utilities which cover a number of common use cases.
 Usage
 =====
 
-The command line utility, flume, can be run in two modes:
+The command line utility, aina, can be run in two modes:
 
   1. Streaming mode: Data is streamed through and used to populate templates
   2. Document mode: Render files src and write the results to dst
@@ -102,17 +102,17 @@ Streaming mode runs in the following manner:
 Below are a few examples. See the documentation for more details::
 
   $ # Like grep
-  $ flume stream --test "'error' in line.lower()" --template "{{line}}" *.log
+  $ aina stream --test "'error' in line.lower()" --template "{{line}}" *.log
   $ # Like wc -l
-  $ flume stream --end-files "print(fnr, filename)" *.log
+  $ aina stream --end-files "print(fnr, filename)" *.log
   $ # Like wc -wl
-  $ flume stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
+  $ aina stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
   $ # Find the count of numbers "\d+" for each line
-  $ flume stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
+  $ aina stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
 
 Please see the documentation for more as well as trying::
 
-  $ flume stream --help
+  $ aina stream --help
 
 Important Note:
 
@@ -126,7 +126,7 @@ Document mode
 Document mode runs tries to render a group of files from one location
 to another. It is used like this::
 
-  $ flume doc <src> <dst>
+  $ aina doc <src> <dst>
 
 There are options to control behavior, but the gist of it is:
 

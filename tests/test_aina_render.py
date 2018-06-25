@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `flume` package."""
+"""Tests for `aina` package."""
 
 
 import unittest
-from flume.render import render
+from aina.render import render
 
-class TestFlumeRender(unittest.TestCase):
-    """Tests for `flume` package."""
+class TestainaRender(unittest.TestCase):
+    """Tests for `aina` package."""
 
     def setUp(self):
         """Set up test fixtures, if any."""

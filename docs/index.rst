@@ -1,4 +1,4 @@
-Welcome to flume's documentation!
+Welcome to aina's documentation!
 ======================================
 
 .. toctree::

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Top-level package for flume."""
+"""Top-level package for aina."""
 
 __author__ = """iLoveTux"""
 __email__ = 'cliffbressette@gmail.com'

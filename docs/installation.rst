@@ -8,16 +8,16 @@ Installation
 Stable release
 --------------
 
-NOTE: This will not work! This project is pending a rename because "flume"
-is not available on PyPI. Looking for suggestions at https://github.com/iLoveTux/flume/issues/4
+NOTE: This will not work! This project is pending a rename because "aina"
+is not available on PyPI. Looking for suggestions at https://github.com/iLoveTux/aina/issues/4
 
-To install flume, run this command in your terminal:
+To install aina, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install flume
+    $ pip install aina
 
-This is the preferred method to install flume, as it will always install the most recent stable release.
+This is the preferred method to install aina, as it will always install the most recent stable release.
 
 If you don't have `pip`_ installed, this `Python installation guide`_ can guide
 you through the process.
@@ -29,19 +29,19 @@ you through the process.
 From sources
 ------------
 
-The sources for flume can be downloaded from the `Github repo`_.
+The sources for aina can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/ilovetux/flume
+    $ git clone git://github.com/ilovetux/aina
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/ilovetux/flume/tarball/master
+    $ curl  -OL https://github.com/ilovetux/aina/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -50,5 +50,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/ilovetux/flume
-.. _tarball: https://github.com/ilovetux/flume/tarball/master
+.. _Github repo: https://github.com/ilovetux/aina
+.. _tarball: https://github.com/ilovetux/aina/tarball/master

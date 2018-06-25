@@ -16,22 +16,22 @@ following variables at various times throughout processing:
 to run in streaming mode, use the stream subcommand. Here is an example
 of a command which is similar to grep::
 
-  $ flume stream --test "'error' in line.lower()" --template {{line}} *.log
+  $ aina stream --test "'error' in line.lower()" --template {{line}} *.log
 
 Here is a command which outputs the number of lines in each file::
 
-  $ flume stream --end-files "print(fnr, filename)" *.log
+  $ aina stream --end-files "print(fnr, filename)" *.log
 
 Here is an updated example which also prints out the word count::
 
-  $ flume stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
+  $ aina stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
 
 Everything that looks advanced is literally just Python, so it's easy
 to pick up and batteries are included. Imports work just fine and there is
 no magic. Here is an example which uses the `re` module find the count of
 numbers::
 
-  $ flume stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
+  $ aina stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
 
 A list of the hooks you can tie into are, If more than any are provided, they
 are processed in the order given. If a filename is given and is said to exist by
@@ -88,6 +88,6 @@ in `src` will be examined and if any have changed then that file is re-rendered
 into `dst`. Said process will continue indefinately until the process is killed,
 ie by pressing `Ctrl + C`.
 
-To use flume in a project::
+To use aina in a project::
 
-    from flume.render import render
+    from aina.render import render
