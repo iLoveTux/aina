@@ -1,9 +1,45 @@
 =====
 Usage
 =====
-In streaming mode, your templates and hooks are `eval`uated or `exec`uted
-within an single, shared namespace. This namespace is injected with the
-following variables at various times throughout processing:
+
+Python API
+----------
+
+With an eye towards simplicity, the Python API consists of a single function
+which accepts a template (as a string) and a namespace (as a dict). It returns
+the string which results from the rendering process.
+
+It can be used like so::
+
+  from aina import render
+
+  result = render("foo = {{foo}}", {"foo": "bar"})
+
+The CLI
+-------
+The command line utility can run in either streaming mode or in document mode.
+
+Streaming mode
+==============
+
+In streaming mode, your templates are rendered once for each line of input.
+
+In addition to rendering templates, there are hooks that can be used to
+execute code at various times during processing. The hooks are defined as
+follows:
+
+  * --begins: Executed once at startup.
+  * --begin-files: Executed once for each file processed.
+  * --begin-lines: Executed once for each line processed. These hooks are only executed if all tests specified by `--tests` evaluate to Truthy values.
+  * --end-lines: Executed once after any processing of line is complete. These hooks are executed regardless of the results of `--tests`.
+  * --end-files:  Executed once after processing is complete for each file.
+  * --ends: Executed once after all lines are complete. This means that either all files are exhausted or `Ctrl + C` has been pressed.
+
+Note: The CLI is expecting either Python source code or a filename. If
+a filename is provided, it will be read in and executed using runpy.
+
+At the start of processing for each line, the following variables
+are injected into the namespace:
 
   * `filename`: The filename currently being processed
   * `line`: The text of the current line
@@ -12,9 +48,18 @@ following variables at various times throughout processing:
   * `fnr`: The number of the current record within the current file
   * `nf`: The result of `len(line.split(field_sep))`
 
+Besides the options above, there are also the following options:
 
-to run in streaming mode, use the stream subcommand. Here is an example
-of a command which is similar to grep::
+Other parameters:
+
+  * --tests: Each of these are `eval`uated when a new line is received. If and only if all tests provided evaluate to Truthy values processing of the line will continue otherwise processing is continued with the next line.
+  * --templates: Templates are treated differently. Templates are rendered once per line according to the rules defined above in "Concepts". The result of each rendering is put out to a logger unique to that template. This allows the Python `logging.config` package to provide a very fine grain of control. The main use case for this is to extract information according to a variety of KPI and output to multiple destinations, while also maintaining a record of authority.
+
+Examples:
+
+To run in streaming mode, use the stream subcommand.
+
+Here is an example of a command which is similar to grep::
 
   $ aina stream --test "'error' in line.lower()" --template {{line}} *.log
 
@@ -32,38 +77,6 @@ no magic. Here is an example which uses the `re` module find the count of
 numbers::
 
   $ aina stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
-
-A list of the hooks you can tie into are, If more than any are provided, they
-are processed in the order given. If a filename is given and is said to exist by
-`os.path.exists`, then that file is read in and executed by ``runpy.run_path``:
-
-If Python source code is provided, then that is `exec`uted.
-
-  * --begins: Executed once at startup.
-  * --begin-files: Executed once for each file processed.
-  * --begin-lines: Executed once for each line processed. These hooks are only
-                   executed if all tests specified by `--tests` evaluate to
-                   Truthy values.
-  * --end-lines: Executed once after any processing of line is complete.
-                 end-lines are rendered regardless of the results of `--tests`.
-  * --end-files:  Executed once after processing is complete for each file.
-  * --ends: Executed once after all lines are complete. This means that
-            either all files are exhausted or `Ctrl + C` has been pressed.
-
-Other parameters:
-
-  * --tests: Each of these are `eval`uated when a new line is received.
-             if and only if all tests provided evaluate to Truthy values
-             processing of the line will continue otherwise processing is
-             continued with the next line.
-  * --templates: Templates are treated differently. Templates are rendered
-                 once per line according to the rules defined above in
-                 "Concepts". The result of each rendering is put out to a
-                 logger unique to that template. This allows the Python
-                 `logging.config` package to provide a very fine grain of
-                 control. The main use case for this is to extract information
-                 according to a variety of KPI and output to multiple
-                 destinations, while also maintaining a record of authority.
 
 Document mode
 =============

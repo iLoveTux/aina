@@ -10,12 +10,9 @@ aina
         :target: https://aina.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-
-Let the logs flow
-
-aina is a general-purpose stream processing framework. It includes
-a simple but powerful templating system and all the utilities
-to shape your data streams.
+Aina is a general-purpose stream processing framework. It includes
+a simple but powerful templating system which powers a versitle command
+line utility.
 
 NOTE: This is new code. Master is in flux and docs are lacking,
 but it is in a point where it could be useful to someone. If
@@ -30,27 +27,28 @@ Features
 --------
 
 * Simple, Powerful templating system
-* Extensible input and output system
 * Command line utilities
-* TODO: Web GUI
+* All the power of Python
+* No hacks or magic
+* Approachable source code
+* Tested
+* TODO: Web UI
 * TODO: Many default use cases covered
 * TODO: --no-overwrite option
 * TODO: Improve test coverage
 
 Installing
 ----------
+You can install the latest stable version with the following command::
 
-Currently the only way to install this package is to clone it which
-should look like the following::
+  $ pip install aina
+
+Alternately, to clone the latest development version::
 
   $ git clone https://github.com/ilovetux/aina
   $ cd aina
-
-Then you can run the tests::
+  # Optional
   $ python setup.py test
-
-And if they pass (fingers crossed!), go ahead with::
-
   $ pip install .
 
 Concepts
@@ -62,19 +60,56 @@ the context of the namespace.
 
 Rendering involves two stages:
 
-  1. scanning the template for strings matching the pattern `{%<Expression>%}`
-     where `<Expression>` is Python source code which is executed (`exec`)
-     within the context of the namespace and removed from the output.
+  1. scanning the template for strings matching the pattern `{%<Source>%}`
+     where `<Source>` is Python source code which is executed (`exec`)
+     within the context of the namespace. After execution, `{%<Source>%}`
+     is removed from the output. Statement can be one or more Python statements
+     and multi-line strings are allowed.
   2. scanning the remaining output for strings matching the pattern
-     `{{<Statement>}}` where `<Statement>` is a Python statement which
-     is replaced (along with `{{` and `}}`) with the value to which
-     it evaluates (`eval`)
+     `{{<Expression>}}` where `<Expression>` is a Python expression which
+     is replaced with the value to which it evaluates (`eval`)
+
+As an example, let's look at the following template::
+
+  {%
+  name = "Bill"
+  age = 35
+  %}
+  hello {{name}}:
+
+  I heard that you just turned {{str(age)}}. Congratulations!
+
+  Sincerely:
+
+  me
+
+If this were rendered, the output would be as follows::
+
+  Hello Bill,
+
+  I heard that you just turned {{str(age)}}. Congratulations!
+
+  Sincerely:
+
+  me
 
 This concept is applied to a variety of use cases and embodied in the form of
 command line utilities which cover a number of common use cases.
 
 Usage
-=====
+-----
+
+Aina can be used directly from within Python, like so::
+
+  from aina.render import render
+
+  namespace = {"foo": "bar"}
+  template = "The value of foo is {{foo}}"
+
+  result = render(template, namespace)
+
+This usage has first-class support, but a much handier solution is to use
+the provided CLI.
 
 The command line utility, aina, can be run in two modes:
 
@@ -82,7 +117,7 @@ The command line utility, aina, can be run in two modes:
   2. Document mode: Render files src and write the results to dst
 
 Streaming mode
---------------
+==============
 
 Streaming mode runs in the following manner:
 
@@ -101,14 +136,20 @@ Streaming mode runs in the following manner:
 
 Below are a few examples. See the documentation for more details::
 
-  $ # Like grep
+  # Like grep
   $ aina stream --test "'error' in line.lower()" --template "{{line}}" *.log
-  $ # Like wc -l
+
+  # Like wc -l
   $ aina stream --end-files "print(fnr, filename)" *.log
-  $ # Like wc -wl
+
+  # Like wc -wl
   $ aina stream --begins "words=0" --begin-lines "words += nf" --end-files "print(words, fnr, filename)"
-  $ # Find the count of numbers "\d+" for each line
+
+  # Find all numbers "\d+" for each line
   $ aina stream --begins "import re" --begin-lines "print(re.findall(r'\d+', line))" *.log
+
+  # Run an XPath
+  $ aina stream --begins "from lxml import etree" --begin-lines "tree = etree.fromstring(line)" --templates "{{"\n".join(tree.xpath("./*"))}}"
 
 Please see the documentation for more as well as trying::
 
@@ -123,8 +164,8 @@ is useful for quickly solving character escaping issues.
 Document mode
 -------------
 
-Document mode runs tries to render a group of files from one location
-to another. It is used like this::
+Document mode renders one or more files and/or directories `src` to
+another location `dst`. It is used like this::
 
   $ aina doc <src> <dst>
 
@@ -151,12 +192,13 @@ or for ad-hoc analysis of text files.
 Document mode is incredibly useful for a powerful configuration templating
 system. The `--interval` option is incredibly useful as it will only re-render
 on a file change, so is great for developing your templates as you can view
-the results in real-time.
+the results in near-real-time.
 
 Document mode is also useful for near-real-time rendering of static
 web resources such as charts, tables, dashboards and more.
 
-
+Find any more use cases, please open an issue or pull request to add it
+here and in the wiki
 
 Credits
 -------
