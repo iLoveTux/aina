@@ -46,20 +46,20 @@ def make_namespace(namespaces, add_env):
                 namespace.update(eval(fin.read()))
     return namespace
 
-def render_directory(src, dst, namespace):
+def render_directory(src, dst, recursive, namespace):
     src = Path(render(src, namespace))
     dst = Path(render(dst, namespace))
     for filename in src.iterdir():
         filename = filename.resolve()
         if filename.is_dir():
             if recursive:
-                new_dir = Path(render(str(dst / item.name), namespace))
+                new_dir = Path(render(str(dst / filename.name), namespace))
                 new_dir.mkdir(parents=True, exists_ok=True)
                 render_directory(filename, new_dir, recursive, namespace)
             else:
                 pass
-        elif item.is_file():
-            render_file(item, dst / item.name, namespace)
+        elif filename.is_file():
+            render_file(filename, dst / filename.name, namespace)
         else:
             pass
 

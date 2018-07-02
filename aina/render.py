@@ -13,7 +13,7 @@ def render(template, namespace=None):
         logging.info("No namespace given, creating empty namespace")
         namespace = {}
 
-    out = template
+    out = str(template)
     for expression in expressions.findall(out):
         logging.debug("Found expression {}, executing with namespace: {}".format(expression[1], namespace))
         exec(dedent(expression[1]).strip(), namespace)
