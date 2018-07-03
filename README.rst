@@ -4,7 +4,7 @@ aina
 
 
 .. image:: https://img.shields.io/travis/iLoveTux/aina.svg
-        :target: https://travis-ci.org/ilovetux/aina
+        :target: https://travis-ci.org/iLoveTux/aina
 
 .. image:: https://readthedocs.org/projects/aina/badge/?version=latest
         :target: https://aina.readthedocs.io/en/latest/?badge=latest
