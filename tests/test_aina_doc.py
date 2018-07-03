@@ -17,7 +17,7 @@ class TestainaDoc(unittest.TestCase):
         with runner.isolated_filesystem():
             Path("src").write_text("this is a {{test}}")
             Path("namespace").write_text("{'test': 'foo'}")
-            runner.invoke(
+            output = runner.invoke(
                 cli,
                 args=(
                     "doc",
@@ -26,6 +26,7 @@ class TestainaDoc(unittest.TestCase):
                     "dst",
                 )
             )
+            self.assertIs(output.exception, None)
             result = Path("dst").read_text()
             expected = "this is a foo"
             self.assertEqual(expected, result)
@@ -37,7 +38,7 @@ class TestainaDoc(unittest.TestCase):
         with runner.isolated_filesystem():
             Path("src").write_text("{% import re %}{{str(re.findall('\w+', 'this is a test'))}}")
             Path("namespace").write_text("{'test': 'foo'}")
-            runner.invoke(
+            output = runner.invoke(
                 cli,
                 args=(
                     "doc",
@@ -46,6 +47,7 @@ class TestainaDoc(unittest.TestCase):
                     "dst",
                 )
             )
+            self.assertIs(output.exception, None)
             result = Path("dst").read_text()
             expected = "['this', 'is', 'a', 'test']"
             self.assertEqual(expected, result)
@@ -63,7 +65,7 @@ class TestainaDoc(unittest.TestCase):
             Path(here / "src" / "second").write_text("this is another {{test}}")
             Path(here / "namespace").write_text("{'test': 'foo'}")
 
-            runner.invoke(
+            output = runner.invoke(
                 cli,
                 args=(
                     "doc",
@@ -72,8 +74,11 @@ class TestainaDoc(unittest.TestCase):
                     "dst",
                 )
             )
+            print(output.output)
+            self.assertIs(output.exception, None)
             first_result = Path(here / "dst" / "first").read_text()
             second_result = Path(here / "dst" / "second").read_text()
+
             self.assertEqual("this is a foo", first_result)
             self.assertEqual("this is another foo", second_result)
 
@@ -103,10 +108,78 @@ class TestainaDoc(unittest.TestCase):
                     "dst",
                 )
             )
-            # print(output.exception)
+            self.assertIs(output.exception, None)
             first_result = Path(here / "dst" / "first").read_text()
             nested_result = Path(here / "dst" / "child" / "nested").read_text()
             second_result = Path(here / "dst" / "second").read_text()
             self.assertEqual("this is a foo", first_result)
             self.assertEqual("this is a nested foo", nested_result)
+            self.assertEqual("this is another foo", second_result)
+
+    def test_recursive_runs_top_down(self):
+        """Test recursive visits files in a top-down manner"""
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            here = Path(".")
+            Path(here / "dst").mkdir()
+            Path(here / "src").mkdir()
+            Path(here / "src" / "child").mkdir()
+
+            # since we need to guarantee top-down recursion,
+            # The alterations to the namespace from a top-most file
+            # Should be available to the more nested files
+            Path(here / "src" / "first").write_text("{%x='5'%}this is a {{test}}")
+            Path(here / "src" / "second").write_text("this is another {{test}}")
+            Path(here / "src" / "child"/ "nested").write_text("X: {{x}}")
+            Path(here / "namespace").write_text("{'test': 'foo'}")
+
+            output = runner.invoke(
+                cli,
+                args=(
+                    "doc",
+                    "--namespaces", "namespace",
+                    "--recursive",
+                    "src",
+                    "dst",
+                )
+            )
+            self.assertIs(output.exception, None)
+            first_result = Path(here / "dst" / "first").read_text()
+            nested_result = Path(here / "dst" / "child" / "nested").read_text()
+            second_result = Path(here / "dst" / "second").read_text()
+            self.assertEqual("this is a foo", first_result)
+            self.assertEqual("X: 5", nested_result)
+            self.assertEqual("this is another foo", second_result)
+
+    def test_no_recursive_option_ignores_subdirectories(self):
+        """Test child is not rendered without recursive flag"""
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            here = Path(".")
+            Path(here / "dst").mkdir()
+            Path(here / "src").mkdir()
+            Path(here / "src" / "child").mkdir()
+
+            # since we need to guarantee top-down recursion,
+            # The alterations to the namespace from a top-most file
+            # Should be available to the more nested files
+            Path(here / "src" / "first").write_text("{%x='5'%}this is a {{test}}")
+            Path(here / "src" / "second").write_text("this is another {{test}}")
+            Path(here / "src" / "child"/ "nested").write_text("X: {{x}}")
+            Path(here / "namespace").write_text("{'test': 'foo'}")
+
+            output = runner.invoke(
+                cli,
+                args=(
+                    "doc",
+                    "--namespaces", "namespace",
+                    "src",
+                    "dst",
+                )
+            )
+            self.assertIs(output.exception, None)
+            first_result = Path(here / "dst" / "first").read_text()
+            second_result = Path(here / "dst" / "second").read_text()
+            self.assertFalse(Path(here / "dst" / "child").exists())
+            self.assertEqual("this is a foo", first_result)
             self.assertEqual("this is another foo", second_result)

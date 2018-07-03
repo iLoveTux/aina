@@ -49,19 +49,17 @@ def make_namespace(namespaces, add_env):
 def render_directory(src, dst, recursive, namespace):
     src = Path(render(src, namespace))
     dst = Path(render(dst, namespace))
-    for filename in src.iterdir():
-        filename = filename.resolve()
-        if filename.is_dir():
-            if recursive:
-                new_dir = Path(render(str(dst / filename.name), namespace))
+    for root, dirs, filenames in os.walk(str(src), topdown=True):
+        for filename in filenames:
+            filename = Path(os.path.join(root, filename))
+            _dst = os.path.join(str(dst), os.path.relpath(str(filename), str(src)))
+            render_file(filename, _dst, namespace)
+        if recursive:
+            for dirname in dirs:
+                new_dir = Path(dst / dirname)
                 new_dir.mkdir(parents=True, exist_ok=True)
-                render_directory(filename, new_dir, recursive, namespace)
-            else:
-                pass
-        elif filename.is_file():
-            render_file(filename, dst / filename.name, namespace)
         else:
-            pass
+            dirs.clear()
 
 def render_file(src, dst, namespace):
     dst = Path(dst)
