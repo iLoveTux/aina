@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `aina` package."""
+"""Tests for `aina stream` command."""
 import unittest
 import logging
 from aina.aina import cli

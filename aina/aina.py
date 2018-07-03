@@ -94,8 +94,6 @@ def doc(src, dst, interval, recursive, namespaces, add_env, logging_config, logg
             format=logging_format,
         )
     namespace = make_namespace(namespaces, add_env)
-    src = render(src, namespace)
-    dst = render(dst, namespace)
     src, dst = map(Path, (src, dst))
     src = src.resolve()
     if src.is_dir():
