@@ -183,3 +183,49 @@ class TestainaDoc(unittest.TestCase):
             self.assertFalse(Path(here / "dst" / "child").exists())
             self.assertEqual("this is a foo", first_result)
             self.assertEqual("this is another foo", second_result)
+
+    def test_begins_are_executed_before_namespace_is_constructed(self):
+        """Test that anything passed to --begins is executed
+        before anything else."""
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            Path("src").write_text("{{test}}")
+            Path("namespace").write_text("{'test': str(sorted(os.listdir('.')))}")
+            output = runner.invoke(
+                cli,
+                args=(
+                    "doc",
+                    "--begins", "import os",
+                    "--namespaces", "namespace",
+                    "src",
+                    "dst",
+                )
+            )
+            self.assertIs(output.exception, None)
+            result = Path("dst").read_text()
+            expected = "['namespace', 'src']"
+            self.assertEqual(expected, result)
+
+
+    def test_ends_are_executed_after_all_work_is_done(self):
+        """Test that anything passed to --ends is executed
+        after everything else."""
+        runner = CliRunner()
+        with runner.isolated_filesystem():
+            Path("src").write_text("{% x = 5 %}{{test}}")
+            Path("namespace").write_text("{'test': 'foo'}")
+            output = runner.invoke(
+                cli,
+                args=(
+                    "doc",
+                    "--namespaces", "namespace",
+                    "--ends", "print(locals())",
+                    "src",
+                    "dst",
+                )
+            )
+            self.assertIs(output.exception, None)
+            result = Path("dst").read_text()
+            expected = "foo"
+            self.assertEqual(expected, result)
+            self.assertIn("'x': 5", output.output)

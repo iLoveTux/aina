@@ -76,10 +76,24 @@ def render_file(src, dst, namespace):
 @click.option("--recursive", "-R", is_flag=True, default=False)
 @click.option("--namespaces", "-N", default=None, type=str, multiple=True)
 @click.option("--add-env", "-E", default=False, is_flag=True)
+@click.option("--begins", "-b", multiple=True)
+@click.option("--ends", "-e", multiple=True)
 @click.option("--logging-config", "-L")
 @click.option("--logging-level", default=20)
 @click.option("--logging-format", default="%(message)s")
-def doc(src, dst, interval, recursive, namespaces, add_env, logging_config, logging_level, logging_format,):
+def doc(
+        src,
+        dst,
+        interval,
+        recursive,
+        namespaces,
+        add_env,
+        begins,
+        ends,
+        logging_config,
+        logging_level,
+        logging_format,
+    ):
     """Render a set of template documents `src` to detination `dst`
     with a persistent namespace"""
     if logging_config:
@@ -91,7 +105,13 @@ def doc(src, dst, interval, recursive, namespaces, add_env, logging_config, logg
             level=logging_level,
             format=logging_format,
         )
-    namespace = make_namespace(namespaces, add_env)
+    if begins is None:
+        begins = []
+    if ends is None:
+        ends = []
+    namespace = {}
+    _exec_list(begins, namespace)
+    namespace.update(make_namespace(namespaces, add_env))
     src, dst = map(Path, (src, dst))
     src = src.resolve()
     if src.is_dir():
@@ -106,6 +126,9 @@ def doc(src, dst, interval, recursive, namespaces, add_env, logging_config, logg
         render_file(src, dst, namespace)
     else:
         raise ValueError("src must be either a file or directory.")
+    _exec_list(ends, namespace)
+    return 0
+
 
 @cli.command("stream")
 @click.argument("filenames", nargs=-1)
