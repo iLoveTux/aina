@@ -12,9 +12,6 @@ matrix:
         - python: 3.7
           dist: xenial
           sudo: true
-        - python: pypy
-          dist: trusty
-          sudo: false
 # Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
   - pip install -U tox-travis
