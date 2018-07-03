@@ -67,9 +67,7 @@ def render_file(src, dst, namespace):
     dst = Path(dst)
     src = Path(src)
     try:
-        with src.open("r") as src_fp:
-            with dst.open("w") as dst_fp:
-                dst_fp.write(render(src_fp.read(), namespace))
+        dst.write_text(render(src.read_text(), namespace))
     except ValueError:
         print("Error rendering template")
 

@@ -45,8 +45,8 @@ class TestainaRender(unittest.TestCase):
 
     def test_simple_exec_import(self):
         input = "{% import string %}{{string.ascii_letters}}"
-        expected = "5"
-        self.assertIn("abcdefghijklmnopqrstuvwxyz", render(input, self.namespace))
+        expected_in = "abcdefghijklmnopqrstuvwxyz"
+        self.assertIn(expected_in, render(input, self.namespace))
 
     def test_multiline_template(self):
         input = """{%
@@ -59,6 +59,8 @@ class TestainaRender(unittest.TestCase):
         self.assertEqual(render(input, self.namespace), expected)
 
     def test_multiline_substitution(self):
-        input = """{{ str(["foo", "bar", "baz"]) }}"""
+        input = """{{
+            str(["foo", "bar", "baz"])
+        }}"""
         expected = "['foo', 'bar', 'baz']"
         self.assertEqual(render(input, self.namespace), expected)
