@@ -54,7 +54,7 @@ def render_directory(src, dst, recursive, namespace):
         if filename.is_dir():
             if recursive:
                 new_dir = Path(render(str(dst / filename.name), namespace))
-                new_dir.mkdir(parents=True, exists_ok=True)
+                new_dir.mkdir(parents=True, exist_ok=True)
                 render_directory(filename, new_dir, recursive, namespace)
             else:
                 pass
