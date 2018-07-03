@@ -65,9 +65,11 @@ def render_directory(src, dst, recursive, namespace):
 
 def render_file(src, dst, namespace):
     dst = Path(dst)
-    template = Path(src)
+    src = Path(src)
     try:
-        dst.write_text(render(template.read_text(), namespace))
+        with src.open("r") as src_fp:
+            with dst.open("w") as dst_fp:
+                dst_fp.write(render(src_fp.read(), namespace))
     except ValueError:
         print("Error rendering template")
 

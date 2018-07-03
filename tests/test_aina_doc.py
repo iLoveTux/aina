@@ -79,7 +79,6 @@ class TestainaDoc(unittest.TestCase):
                     "dst",
                 )
             )
-            print(list(Path(here / "src").iterdir()))
             first_result = Path(here / "dst" / "first").open("r").read()
             second_result = Path(here / "dst" / "second").open("r").read()
             self.assertEqual("this is a foo", first_result)
