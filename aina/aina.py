@@ -61,13 +61,20 @@ def render_directory(src, dst, recursive, namespace):
         else:
             dirs.clear()
 
+mtimes = {}
 def render_file(src, dst, namespace):
     dst = Path(dst)
     src = Path(src)
-    try:
-        dst.write_text(render(src.read_text(), namespace))
-    except ValueError:
-        print("Error rendering template")
+    if src not in mtimes or src.stat().st_mtime != mtimes[src]:
+        print("Rendering {} -> {}".format(src, dst))
+        try:
+            dst.write_text(render(src.read_text(), namespace))
+        except ValueError:
+            print("Error rendering template")
+        finally:
+            mtimes[src] = src.stat().st_mtime
+    else:
+        pass
 
 @cli.command("doc")
 @click.argument("src")
@@ -114,18 +121,22 @@ def doc(
     namespace.update(make_namespace(namespaces, add_env))
     src, dst = map(Path, (src, dst))
     src = src.resolve()
-    if src.is_dir():
-        if not dst.is_dir():
-            raise ValueError("If src is a directory, dst must also be a directory")
-        render_directory(src, dst, recursive, namespace)
-    elif src.is_file():
-        if dst.exists() and dst.is_dir():
-            dst = dst / src.name
-        elif not dst.parent.exists():
-            dst.parent.mkdir(parents=True, exist_ok=True)
-        render_file(src, dst, namespace)
-    else:
-        raise ValueError("src must be either a file or directory.")
+    while True:
+        if src.is_dir():
+            if not dst.is_dir():
+                raise ValueError("If src is a directory, dst must also be a directory")
+            render_directory(src, dst, recursive, namespace)
+        elif src.is_file():
+            if dst.exists() and dst.is_dir():
+                dst = dst / src.name
+            elif not dst.parent.exists():
+                dst.parent.mkdir(parents=True, exist_ok=True)
+            render_file(src, dst, namespace)
+        else:
+            raise ValueError("src must be either a file or directory.")
+        if interval <= 0:
+            break
+        sleep(interval)
     _exec_list(ends, namespace)
     return 0
 
