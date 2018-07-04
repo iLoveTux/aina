@@ -2,10 +2,22 @@ from textwrap import dedent
 from hashlib import sha256
 import logging
 import click
+import sys
 import re
+from io import StringIO
+import contextlib
 
-statements = re.compile(r"(\{\{(.*?)\}\})", re.DOTALL)
-expressions = re.compile(r"(\{%(.*?)%\})", re.DOTALL)
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
+
+expressions = re.compile(r"(\{\{(.*?)\}\})", re.DOTALL)
+statements = re.compile(r"(\{%(.*?)%\})", re.DOTALL)
 
 def render(template, namespace=None):
     global cache
@@ -14,13 +26,14 @@ def render(template, namespace=None):
         namespace = {}
 
     out = str(template)
-    for expression in expressions.findall(out):
+    for expression in statements.findall(out):
         logging.debug("Found expression {}, executing with namespace: {}".format(expression[1], namespace))
-        exec(dedent(expression[1]).strip(), namespace)
-        logging.debug("Namespace after executing: {}".format(namespace))
-        out = out.replace(expression[0], "")
-        logging.debug("output so far: {}".format(out))
-    for statement in statements.findall(out):
+        with stdoutIO() as output:
+            exec(dedent(expression[1]).strip(), namespace)
+            logging.debug("Namespace after executing: {}".format(namespace))
+            out = out.replace(expression[0], output.getvalue())
+            logging.debug("output so far: {}".format(out))
+    for statement in expressions.findall(out):
         logging.debug("Found statement {}, evaluating with namespace: {}".format(statement[1], namespace))
         out = out.replace(
             statement[0],

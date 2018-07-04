@@ -64,3 +64,8 @@ class TestainaRender(unittest.TestCase):
         }}"""
         expected = "['foo', 'bar', 'baz']"
         self.assertEqual(render(input, self.namespace), expected)
+
+    def test_expression_replaced_with_stdout(self):
+        input = "{%print('hello, world')%}"
+        expected = "hello, world\n"
+        self.assertEqual(render(input, self.namespace), expected)
