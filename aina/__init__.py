@@ -4,6 +4,6 @@
 
 __author__ = """iLoveTux"""
 __email__ = 'cliffbressette@gmail.com'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 from aina.render import render
