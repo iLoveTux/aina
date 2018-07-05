@@ -37,7 +37,7 @@ def render(template, namespace=None):
         logging.debug("Found statement {}, evaluating with namespace: {}".format(statement[1], namespace))
         out = out.replace(
             statement[0],
-            eval(dedent(statement[1]).strip(), namespace)
+            str(eval(dedent(statement[1]).strip(), namespace))
         )
         logging.debug("output so far: {}".format(out))
     return out
