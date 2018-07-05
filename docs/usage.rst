@@ -11,9 +11,9 @@ the string which results from the rendering process.
 
 It can be used like so::
 
-  from aina import render
-
-  result = render("foo = {{foo}}", {"foo": "bar"})
+  >>> from aina import render
+  >>> print(render("foo = {{foo}}", {"foo": "bar"}))
+  foo = bar
 
 The CLI
 -------
@@ -83,7 +83,8 @@ Document mode
 
 In document mode, your templates reside in files and are read from `src`
 and written to `dst`.The behavior differs depending on the values provided
-for `src` and `dst`.
+for `src` and `dst` and for the most part follows the semantics of the `cp`
+command.
 
 If `src` is a directory or multiple values are provided for `src`
 then `dst` must be a directory in which case all files in `src` will
@@ -100,7 +101,3 @@ will sleep for the specified interval. When the process awakens again all files
 in `src` will be examined and if any have changed then that file is re-rendered
 into `dst`. Said process will continue indefinately until the process is killed,
 ie by pressing `Ctrl + C`.
-
-To use aina in a project::
-
-    from aina.render import render

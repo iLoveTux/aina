@@ -62,9 +62,9 @@ Rendering involves two stages:
 
   1. scanning the template for strings matching the pattern `{%<Source>%}`
      where `<Source>` is Python source code which is executed (`exec`)
-     within the context of the namespace. After execution, `{%<Source>%}`
-     is removed from the output. Statement can be one or more Python statements
-     and multi-line strings are allowed.
+     within the context of the namespace. During execution, stdout is
+     captured. After execution, `{%<Source>%}` is replaced with a string
+     containing the output.
   2. scanning the remaining output for strings matching the pattern
      `{{<Expression>}}` where `<Expression>` is a Python expression which
      is replaced with the value to which it evaluates (`eval`)
@@ -72,6 +72,7 @@ Rendering involves two stages:
 As an example, let's look at the following template::
 
   {%
+  me = "iLoveTux"
   name = "Bill"
   age = 35
   %}
@@ -81,7 +82,7 @@ As an example, let's look at the following template::
 
   Sincerely:
 
-  me
+  {% print(me) %}
 
 If this were rendered, the output would be as follows::
 
@@ -91,7 +92,7 @@ If this were rendered, the output would be as follows::
 
   Sincerely:
 
-  me
+  iLoveTux
 
 This concept is applied to a variety of use cases and embodied in the form of
 command line utilities which cover a number of common use cases.
@@ -101,7 +102,7 @@ Usage
 
 Aina can be used directly from within Python, like so::
 
-  from aina.render import render
+  from aina import render
 
   namespace = {"foo": "bar"}
   template = "The value of foo is {{foo}}"
@@ -121,9 +122,9 @@ Streaming mode
 
 Streaming mode runs in the following manner:
 
-  1. reads data from `filenames`, which defaults to stdin
+  1. Accept a list of `filenames` (wildcards are accepted), which defaults to stdin
   2. At this point any expressions passed to `--begins` are executed
-  3. The files specified are processed as follows in order
+  3. The files specified are processed in order
     1. Any expressions passed to `--begin-files` are executed
     2. The data from the current file is read line-by-line
       1. Any statements passed to `--tests` are evaluated
@@ -181,7 +182,7 @@ There are options to control behavior, but the gist of it is:
 Some important notes:
 
 * File and directory names can be templated
-* If `--interval` is passed an integer value, the program will sleep for that many seconds and check for changes to your templates in which case they will be re-rendered
+* If `--interval` is passed an integer value, the program will sleep for that many seconds and check for changes to your templates (based on the file's mtime) in which case they will be re-rendered
 
 Use Cases
 ---------
@@ -197,7 +198,7 @@ the results in near-real-time.
 Document mode is also useful for near-real-time rendering of static
 web resources such as charts, tables, dashboards and more.
 
-Find any more use cases, please open an issue or pull request to add it
+If you find any more use cases, please open an issue or pull request to add it
 here and in the wiki
 
 Credits
