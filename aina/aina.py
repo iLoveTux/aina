@@ -43,7 +43,7 @@ def make_namespace(namespaces, add_env):
     if namespaces is not None:
         for _namespace in namespaces:
             with open(_namespace, "r") as fin:
-                namespace.update(eval(fin.read()))
+                namespace.update(eval(fin.read(), namespace))
     return namespace
 
 def render_directory(src, dst, recursive, namespace):
