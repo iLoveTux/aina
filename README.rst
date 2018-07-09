@@ -35,7 +35,6 @@ Features
 * TODO: Web UI
 * TODO: Many default use cases covered
 * TODO: --no-overwrite option
-* TODO: Improve test coverage
 
 Installing
 ----------

@@ -29,15 +29,17 @@ from time import time, sleep
 cli = click.Group()
 
 def _exec_list(exprs, namespace):
+    log = logging.getLogger(__name__)
     for expr in exprs:
         _expr = render(expr, namespace)
         if os.path.isfile(_expr):
+            log.debug("{} is a file, executing...".format(_expr))
             namespace.update(runpy.run_path(_expr, init_globals=namespace))
         else:
+            log.debug("Executing {}".format(_expr))
             exec(_expr, namespace)
 
-def make_namespace(namespaces, add_env):
-    namespace = {}
+def make_namespace(namespace, namespaces, add_env):
     if add_env:
         namespace.update(os.environ)
     if namespaces is not None:
@@ -47,33 +49,38 @@ def make_namespace(namespaces, add_env):
     return namespace
 
 def render_directory(src, dst, recursive, namespace):
+    log = logging.getLogger(__name__)
     src = Path(render(src, namespace))
     dst = Path(render(dst, namespace))
     for root, dirs, filenames in os.walk(str(src), topdown=True):
+        log.debug("In directory: {}".format(root))
         for filename in filenames:
             filename = Path(os.path.join(root, filename))
+            log.debug("Found file {}".format(filename))
             _dst = os.path.join(str(dst), os.path.relpath(str(filename), str(src)))
             render_file(filename, _dst, namespace)
         if recursive:
             for dirname in dirs:
                 new_dir = Path(dst / dirname)
+                log.debug("Recursive, rendering to {}".format(new_dir))
                 new_dir.mkdir(parents=True, exist_ok=True)
         else:
+            log.debug("Not recursive, exiting")
             dirs.clear()
 
 mtimes = {}
 def render_file(src, dst, namespace):
+    log = logging.getLogger(__name__)
     dst = Path(dst)
     src = Path(src)
     if src not in mtimes or src.stat().st_mtime != mtimes[src]:
-        print("Rendering {} -> {}".format(src, dst))
+        log.warn("Rendering {} -> {}".format(src, dst))
         try:
             dst.write_text(render(src.read_text(), namespace))
-        except ValueError:
-            print("Error rendering template")
         finally:
             mtimes[src] = src.stat().st_mtime
     else:
+        log.debug("File {} has not changed, skipping".format(src))
         pass
 
 @cli.command("doc")
@@ -86,7 +93,7 @@ def render_file(src, dst, namespace):
 @click.option("--begins", "-b", multiple=True)
 @click.option("--ends", "-e", multiple=True)
 @click.option("--logging-config", "-L")
-@click.option("--logging-level", default=20)
+@click.option("--logging-level", default=30)
 @click.option("--logging-format", default="%(message)s")
 def doc(
         src,
@@ -112,24 +119,29 @@ def doc(
             level=logging_level,
             format=logging_format,
         )
+    log = logging.getLogger(__name__)
     if begins is None:
         begins = []
     if ends is None:
         ends = []
     namespace = {}
     _exec_list(begins, namespace)
-    namespace.update(make_namespace(namespaces, add_env))
+    namespace.update(make_namespace(namespace, namespaces, add_env))
     src, dst = map(Path, (src, dst))
     src = src.resolve()
     while True:
         if src.is_dir():
+            log.debug("src is directory: {}".format(src))
             if not dst.is_dir():
                 raise ValueError("If src is a directory, dst must also be a directory")
             render_directory(src, dst, recursive, namespace)
         elif src.is_file():
+            log.debug("src is file: {}".format(src))
             if dst.exists() and dst.is_dir():
                 dst = dst / src.name
+                log.debug("dst is directory, rendering to: {}".format(dst))
             elif not dst.parent.exists():
+                log.debug("{} does not exist, creating...")
                 dst.parent.mkdir(parents=True, exist_ok=True)
             render_file(src, dst, namespace)
         else:
@@ -193,16 +205,18 @@ def stream(
             format=logging_format,
         )
 
+    log = logging.getLogger(__name__)
     if add_paths is None:
         add_paths = []
     for path in add_paths:
         if os.path.exists(path):
             sys.path.insert(0, path)
         else:
-            print("{} not found, invalid path".format(path))
+            log.critical("{} not found, invalid path".format(path))
             sys.exit(-2)
-    namespace = make_namespace(namespaces, add_env)
+    namespace = make_namespace({}, namespaces, add_env)
     if not filenames:
+        log.debug("No filenames specified, defaulting to stdin")
         filenames = ["-"]
     _filenames = []
     for filename in filenames:
@@ -211,6 +225,7 @@ def stream(
         else:
             _filenames.extend(glob(filename, recursive=recursive))
     filenames = list(filter(lambda x: not os.path.isdir(x), _filenames))
+    log.debug("Reading filenames {}".format(filenames))
     last_filename = None
     nr = 0
     if tests is None:
@@ -231,7 +246,9 @@ def stream(
     for filename in filenames:
         try:
             with click.open_file(filename, "rb") as fin:
+                log.debug("Reading {}".format(filename))
                 for line in fin:
+                    log.debug("Got line: {}".format(line))
                     if filename != last_filename:
                         if with_filenames:
                             print("===> {} <===".format(os.path.abspath(filename)))
@@ -252,27 +269,21 @@ def stream(
                     if all(eval(render(test, namespace), namespace) for test in tests):
                         _exec_list(begin_lines, namespace)
                         for template in templates:
+                            log.debug("Rendering template: {}".format(template))
                             try:
                                 results = render(template, namespace).strip()
                             except:
                                 if not suppress_tracebacks:
-                                    logging.getLogger("ERROR").exception("An unhandled exception occurred")
+                                    log.exception("An unhandled exception occurred")
                                 continue
+                            log.debug("Result: {}".format(results))
                             if results:
-                                logging.getLogger(
-                                    "{}.{}.{}".format(
-                                        __name__,
-                                        filename,
-                                        templates.index(template),
-                                    )
-                                ).info(
-                                    results
-                                )
+                                log.info(results)
                     _exec_list(end_lines, namespace)
             _exec_list(end_files, namespace)
         except:
             if not suppress_tracebacks:
-                logging.getLogger(__name__).exception("An unhandled exception occurred")
+                log.exception("An unhandled exception occurred")
             continue
     _exec_list(ends, namespace)
     return 0
