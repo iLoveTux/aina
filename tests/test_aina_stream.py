@@ -33,7 +33,7 @@ class TestainaStream(unittest.TestCase):
             args=(
                 "stream",
                 "--templates",
-                "{{line.decode()}}"
+                "{{line}}"
             ),
             input="foo"
         )
@@ -47,8 +47,8 @@ class TestainaStream(unittest.TestCase):
             cli,
             args=(
                 "stream",
-                "--tests", "'bar' in line.decode()",
-                "--begin-lines", "print(line.decode(), end='')"
+                "--tests", "'bar' in line",
+                "--begin-lines", "print(line, end='')"
             ),
             input="foo\nbar\n"
         )
@@ -62,8 +62,8 @@ class TestainaStream(unittest.TestCase):
             cli,
             args=(
                 "stream",
-                "--tests", "'bar' in line.decode().strip()",
-                "--end-lines", "print(line.decode().strip())",
+                "--tests", "'bar' in line.strip()",
+                "--end-lines", "print(line.strip())",
             ),
             input="foo\nbar\n"
         )
@@ -77,8 +77,8 @@ class TestainaStream(unittest.TestCase):
             cli,
             args=(
                 "stream",
-                "--tests", "'bar' in line.decode()",
-                "--templates", "{{line.decode()}}"
+                "--tests", "'bar' in line",
+                "--templates", "{{line}}"
             ),
             input="foo\nbar"
         )
@@ -92,9 +92,9 @@ class TestainaStream(unittest.TestCase):
             cli,
             args=(
                 "stream",
-                "--tests", "'bar' in line.decode()",
-                "--tests", "'foo' in line.decode()",
-                "--templates", "{{line.decode()}}",
+                "--tests", "'bar' in line",
+                "--tests", "'foo' in line",
+                "--templates", "{{line}}",
             ),
             input="foo\nbar\nfoobar",
         )
