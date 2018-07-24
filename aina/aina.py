@@ -259,7 +259,7 @@ def stream(
                     fnr, nr = fnr + 1, nr + 1
                     fields = line.split(field_sep)
                     namespace.update({
-                        "line": line,
+                        "line": line.decode(),
                         "filename": os.path.abspath(filename),
                         "fields": fields,
                         "nf": len(fields),
