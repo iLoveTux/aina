@@ -180,7 +180,6 @@ There are options to control behavior, but the gist of it is:
 
 Some important notes:
 
-* File and directory names can be templated
 * If `--interval` is passed an integer value, the program will sleep for that many seconds and check for changes to your templates (based on the file's mtime) in which case they will be re-rendered
 
 Use Cases
